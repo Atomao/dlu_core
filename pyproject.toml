@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "dlu_core"
+version = "0.1.1"
+description = "My utility functions for work"
+authors = ["Danylo Kunyk <kunyk1507@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
