@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dlu_core"
-version = "0.1.1"
+version = "0.1.2"
 description = "My utility functions for work"
 authors = ["Danylo Kunyk <kunyk1507@gmail.com>"]
 readme = "README.md"
