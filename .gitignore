@@ -1,0 +1,6 @@
+*venv*
+dist
+notebooks
+test
+*__pycache__*
+poetry.lock
