@@ -10,7 +10,7 @@ def plot_random_yolo_crop(images_folder_path, annotations_folder_path):
     annotations_path = Path(annotations_folder_path)
 
     a_path = random.sample(list(annotations_path.rglob("*.txt")),k=1)[0]
-    i_path = images_path / a_path.parent.name / a_path.with_suffix(".JPG").name
+    i_path = list(images_path.rglob(f"*{a_path.stem}*"))[0]
     if i_path.exists() and a_path.exists():
         visualize_yolo(i_path, a_path)
     else:
