@@ -9,7 +9,6 @@ class Config:
         self.annotation_sources = "Not set"
         self.annotations_extension = "Not set"
         self.crop_resolution = "Not set"
-        
 
     def from_dict(self, conf):
         for key, value in conf.items():
@@ -36,9 +35,12 @@ class YoloConfig(Config):
         self.annotations_extension = ".txt"
         self.crop_resolution = 640
 
-
-    def set_bbox_meta_params(self, min_visibility=None, bbox_width=None, bbox_height=None):
+    def set_bbox_meta_params(
+        self, min_visibility=None, bbox_width=None, bbox_height=None
+    ):
         min_visibility = 0.3 if min_visibility is None else min_visibility
-        self.bbox_meta_params = A.BboxParams(format="yolo", min_visibility=min_visibility)
+        self.bbox_meta_params = A.BboxParams(
+            format="yolo", min_visibility=min_visibility
+        )
         self.bbox_width = bbox_width
         self.bbox_height = bbox_height

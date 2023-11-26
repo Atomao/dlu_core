@@ -9,18 +9,16 @@ package_data = \
 
 install_requires = \
 ['albumentations>=1.3.1,<2.0.0',
- 'black>=23.11.0,<24.0.0',
  'hydra-core>=1.3.2,<2.0.0',
- 'isort>=5.12.0,<6.0.0',
  'matplotlib>=3.8.2,<4.0.0',
  'numpy>=1.26.2,<2.0.0',
  'pandas>=2.1.3,<3.0.0',
- 'pylint>=3.0.2,<4.0.0',
+ 'ruff>=0.1.6,<0.2.0',
  'tqdm>=4.66.1,<5.0.0']
 
 setup_kwargs = {
     'name': 'dlu_core',
-    'version': '0.1.1',
+    'version': '0.1.3',
     'description': 'My utility functions for work',
     'long_description': '',
     'author': 'Danylo Kunyk',
