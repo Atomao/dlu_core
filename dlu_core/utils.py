@@ -2,6 +2,19 @@ import re
 from pathlib import Path
 
 
+def handle_source(self, sources):
+    if isinstance(sources, str):
+        sources = [sources]
+    elif isinstance(sources, list):
+        if all(isinstance(item, str) for item in sources):
+            sources = sources
+        else:
+            raise ValueError("All items in the list must be strings")
+    else:
+        raise TypeError("sources must be a string or a list of strings")
+    return [Path(source) for source in sources]
+
+
 def find_files_recursive(directories, pattern):
     regex = re.compile(pattern)
     matching_files = []
