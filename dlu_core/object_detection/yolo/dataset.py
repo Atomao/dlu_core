@@ -1,18 +1,22 @@
-import sys
 import logging
 import os
 import re
 import shutil
+import sys
 from pathlib import Path
+
 from tqdm import tqdm
+
 sys.path.append(Path(__file__).parent.parent.parent)
 
 
-from dlu_core.utils import find_files_recursive
 import albumentations as A
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+from dlu_core.utils import find_files_recursive
+
 from .utils import generate_crops, scale_from_yolo, scale_to_yolo
 
 logging.getLogger(__name__).setLevel(logging.DEBUG)
@@ -57,7 +61,6 @@ class DatasetCreatorYolo:
             )
             self.handle_image_annotation(image_path, annotation_path, stage)
 
-
     def handle_image_annotation(self, image_path, annotation_path, stage):
         divisor = self.config.crop_resolution
 
@@ -73,33 +76,45 @@ class DatasetCreatorYolo:
 
         if self.config.bbox_width is not None and self.config.bbox_height is not None:
             for i, bbox in enumerate(bboxes):
-                if bbox[1] > self.config.bbox_width / 2 and bbox[1] < 1 - self.config.bbox_width / 2:
+                if (
+                    bbox[1] > self.config.bbox_width / 2
+                    and bbox[1] < 1 - self.config.bbox_width / 2
+                ):
                     bboxes[i][3] = self.config.bbox_width
-                if bbox[2] > self.config.bbox_height / 2 and bbox[2] < 1 - self.config.bbox_height / 2:
+                if (
+                    bbox[2] > self.config.bbox_height / 2
+                    and bbox[2] < 1 - self.config.bbox_height / 2
+                ):
                     bboxes[i][4] = self.config.bbox_height
 
-
         bboxes = scale_from_yolo(
-            [(x, y, w, h) for yolo_class, x, y, w, h in bboxes], (image_height, image_width)
+            [(x, y, w, h) for yolo_class, x, y, w, h in bboxes],
+            (image_height, image_width),
         )
 
-        padding = ((0, divisor - image_height % divisor), (0, divisor - image_width % divisor), (0, 0))
+        padding = (
+            (0, divisor - image_height % divisor),
+            (0, divisor - image_width % divisor),
+            (0, 0),
+        )
         image = np.pad(image, padding)
         image_height, image_width = image.shape[:2]
 
-        bboxes = scale_to_yolo([(x + 1, y + 1, w + 1, h + 1) for x, y, w, h in bboxes], (image_height, image_width))
+        bboxes = scale_to_yolo(
+            [(x + 1, y + 1, w + 1, h + 1) for x, y, w, h in bboxes],
+            (image_height, image_width),
+        )
         bboxes = np.array([(x, y, w, h, 0) for x, y, w, h in bboxes])
 
         crops = generate_crops(
             divisor,
-            image_height, image_width,
+            image_height,
+            image_width,
             bbox_meta_params=self.config.bbox_meta_params,
         )
         for i in range(0, image_height, divisor):
             for j in range(0, image_width, divisor):
-                cropped = crops[i // divisor][j // divisor](
-                    image=image, bboxes=bboxes
-                )
+                cropped = crops[i // divisor][j // divisor](image=image, bboxes=bboxes)
 
                 crop_bboxes = []
                 for bbox in cropped["bboxes"]:
@@ -122,4 +137,3 @@ class DatasetCreatorYolo:
                     with open(output_annotation_path, "w") as dst:
                         dst.writelines(crop_bboxes)
                 plt.imsave(output_image_path, cropped["image"])
-

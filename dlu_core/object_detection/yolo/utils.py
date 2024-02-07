@@ -1,15 +1,45 @@
+import random
+from pathlib import Path
+
 import albumentations as A
 import cv2
 import matplotlib.pyplot as plt
+import pandas as pd
 
-from pathlib import Path
-import random
+from dlu_core.object_detection.utils import center_xywh2xyxy
+
+
+def load_yolo_annotations_file(annotations_path, height, width):
+    with open(annotations_path, "r") as file:
+        lines = file.readlines()
+
+    annotatios = []
+    for line in lines:
+        c, x, y, w, h = map(float, line.split(" "))
+        xmin, ymin, xmax, ymax = center_xywh2xyxy(x, y, w, h)
+        xmin, ymin, xmax, ymax = (
+            int(xmin * width),
+            int(ymin * height),
+            int(xmax * width),
+            int(ymax * height),
+        )
+        if xmin < 0:
+            xmin = 0
+        if xmax > width - 1:
+            xmax = width - 1
+        if ymin < 0:
+            ymin = 0
+        if ymax > height - 1:
+            ymax = height - 1
+        annotatios.append([xmin, ymin, xmax, ymax, c])
+    return pd.DataFrame(annotatios, columns=["xmin", "ymin", "xmax", "ymax", "label"])
+
 
 def plot_random_yolo_crop(images_folder_path, annotations_folder_path):
-    images_path = Path(images_folder_path) 
+    images_path = Path(images_folder_path)
     annotations_path = Path(annotations_folder_path)
 
-    a_path = random.sample(list(annotations_path.rglob("*.txt")),k=1)[0]
+    a_path = random.sample(list(annotations_path.rglob("*.txt")), k=1)[0]
     i_path = list(images_path.rglob(f"*{a_path.stem}*"))[0]
     if i_path.exists() and a_path.exists():
         visualize_yolo(i_path, a_path)
@@ -20,23 +50,22 @@ def plot_random_yolo_crop(images_folder_path, annotations_folder_path):
 def visualize_yolo(image_path, label_path):
     img = plt.imread(image_path, label_path)
     dh, dw, _ = img.shape
-    
-    fl = open(label_path, 'r')
+
+    fl = open(label_path, "r")
     data = fl.readlines()
     fl.close()
-    
+
     for dt in data:
-    
         # Split string to float
-        c, x, y, w, h = map(float, dt.split(' '))
-    
+        c, x, y, w, h = map(float, dt.split(" "))
+
         # Taken from https://github.com/pjreddie/darknet/blob/810d7f797bdb2f021dbe65d2524c2ff6b8ab5c8b/src/image.c#L283-L291
         # via https://stackoverflow.com/questions/44544471/how-to-get-the-coordinates-of-the-bounding-box-in-yolo-object-detection#comment102178409_44592380
         l = int((x - w / 2) * dw)
         r = int((x + w / 2) * dw)
         t = int((y - h / 2) * dh)
         b = int((y + h / 2) * dh)
-        
+
         if l < 0:
             l = 0
         if r > dw - 1:
@@ -51,7 +80,7 @@ def visualize_yolo(image_path, label_path):
         elif c == 1:
             color = (255, 0, 0)
         cv2.rectangle(img, (l, t), (r, b), color, 20)
-    
+
     plt.imshow(img)
     plt.show()
 
